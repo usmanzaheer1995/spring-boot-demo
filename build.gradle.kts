@@ -1,11 +1,7 @@
+import nu.studer.gradle.jooq.JooqGenerate
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jooq.codegen.GenerationTool
-import org.jooq.meta.jaxb.Configuration
-import org.jooq.meta.jaxb.Database
-import org.jooq.meta.jaxb.Generate
-import org.jooq.meta.jaxb.Generator
-import org.jooq.meta.jaxb.Jdbc
-import org.jooq.meta.jaxb.Target
+import org.jooq.meta.jaxb.Logging
+import org.jooq.meta.jaxb.Property
 
 plugins {
     id("org.springframework.boot") version "3.2.1"
@@ -14,11 +10,13 @@ plugins {
     id("org.flywaydb.flyway") version "10.0.0"
     kotlin("jvm") version "1.9.21"
     kotlin("plugin.spring") version "1.9.21"
-    id("org.jooq.jooq-codegen-gradle") version "3.19.3"
+    id("nu.studer.jooq") version "9.0"
 }
 
 group = "org.usmanzaheer1995"
 version = "0.0.1-SNAPSHOT"
+
+ext["jooq.version"] = jooq.version.get()
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -32,6 +30,7 @@ buildscript {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -40,6 +39,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jooq:jooq:3.19.3")
+    jooqGenerator("org.postgresql:postgresql:42.5.4")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     implementation("org.flywaydb:flyway-core:9.16.0")
@@ -62,32 +62,58 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.register("generateJooq") {
-    doLast {
-        GenerationTool.generate(
-            Configuration()
-                .withJdbc(
-                    Jdbc()
-                        .withDriver("org.postgresql.Driver")
-                        .withUser("myuser")
-                        .withPassword("secret")
-                        .withUrl("jdbc:postgresql://0.0.0.0:5431/mydatabase"),
-                )
-                .withGenerator(
-                    Generator()
-                        .withName("org.jooq.codegen.KotlinGenerator")
-                        .withDatabase(
-                            Database().withInputSchema("public"),
-                        )
-                        .withGenerate(Generate())
-                        .withTarget(
-                            Target()
-                                .withDirectory(project.file("src/main/resources").absolutePath),
-                        ),
-                ),
-        )
+jooq {
+    configurations {
+        create("") {
+            jooqConfiguration.apply {
+                logging = Logging.WARN
+                jdbc.apply {
+                    driver = "org.postgresql.Driver"
+                    url = "jdbc:postgresql://0.0.0.0:5431/mydatabase"
+                    user = "myuser"
+                    password = "secret"
+                    properties.add(Property().apply {
+                        key = "ssl"
+                        value = "false"
+                    })
+                }
+                generator.apply {
+                    name = "org.jooq.codegen.KotlinGenerator"
+                    database.apply {
+                        name = "org.jooq.meta.postgres.PostgresDatabase"
+                        inputSchema = "public"
+                    }
+                    generate.apply {
+                        isRelations = true
+                        isDeprecated = false
+                        isRecords = true
+                        isImmutablePojos = true
+                        isFluentSetters = true
+                    }
+                    target.apply {
+                        packageName = "org.usmanzaheer1995.springbootdemo.persistence.db"
+                    }
+                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                }
+            }
+        }
     }
 }
+
+sourceSets {
+    main {
+        kotlin {
+            srcDir("build/generated-src/jooq")
+        }
+    }
+}
+
+tasks.named<JooqGenerate>("generateJooq") {
+    (launcher::set)(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    })
+}
+
 
 flyway {
     url = "jdbc:postgresql://0.0.0.0:5431/mydatabase"
