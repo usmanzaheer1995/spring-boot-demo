@@ -22,3 +22,12 @@ stop/db:
 .PHONY: jooq/generate
 jooq/generate:
 	@./gradlew generateJooq
+
+## openapi/generate: generate openapi classes
+.PHONY: openapi/generate
+openapi/generate:
+	@./gradlew openApiGenerate
+
+## build/dev-deps: build development dependencies i.e. flyway, jooq, openapi
+.PHONY: build/dev-deps
+build/dev-deps: jooq/generate openapi/generate
