@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-jdbc:3.1.1") {
+    implementation("org.springframework.boot:spring-boot-starter-jdbc:3.2.2") {
         exclude(group = "org.springframework", module = "spring-core")
     }
     implementation("org.springframework:spring-core:6.1.3")
@@ -50,13 +50,16 @@ dependencies {
     implementation("org.jooq:jooq:3.19.3")
     implementation("org.flywaydb:flyway-core:10.1.0")
     jooqGenerator("org.postgresql:postgresql:42.5.4")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+    developmentOnly("org.springframework.boot:spring-boot-devtools:3.2.2")
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose:3.2.2")
     runtimeOnly("org.postgresql:postgresql:42.5.4")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.2") {
+        exclude(group = "com.jayway.jsonpath", module = "json-path")
+    }
+    testImplementation("com.jayway.jsonpath:json-path:2.9.0")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers:3.2.2")
+    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
     testImplementation("io.mockk:mockk:1.13.8")
 }
 
