@@ -18,16 +18,37 @@ start/db:
 stop/db:
 	@docker-compose down
 
-## jooq/generate: generate jooq classes
-.PHONY: jooq/generate
-jooq/generate:
+## generate/jooq: generate jooq classes
+.PHONY: generate/jooq
+generate/jooq:
 	@./gradlew generateJooq
 
-## openapi/generate: generate openapi classes
-.PHONY: openapi/generate
-openapi/generate:
+## generate/openapi: generate openapi classes
+.PHONY: generate/openapi
+generate/openapi:
 	@./gradlew openApiGenerate
+
+## generate/flywayMigrations: generate flyway migrations
+.PHONY: generate/flywayMigrations
+generate/flywayMigrations:
+	@./gradlew flywayMigrate
+
+## generate/resources: generate all resources i.e. flyway, jooq, openapi
+.PHONE: generate/resources
+generate/resources: generate/flywayMigrations generate/jooq generate/openapi
 
 ## build/dev-deps: build development dependencies i.e. flyway, jooq, openapi
 .PHONY: build/dev-deps
-build/dev-deps: jooq/generate openapi/generate
+build/dev-deps: start/db delay generate/flywayMigrations generate/jooq generate/openapi
+
+ifeq ($(OS),Windows_NT)
+    # Commands to run on Windows
+    delay = timeout 2
+else
+    # Commands to run on Unix/Linux/macOS
+    delay = sleep 2
+endif
+
+.PHONY: delay
+delay:
+	@${delay}

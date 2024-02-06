@@ -8,7 +8,7 @@ plugins {
     id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
     id("org.graalvm.buildtools.native") version "0.9.28"
-    id("org.flywaydb.flyway") version "10.0.0"
+    id("org.flywaydb.flyway") version "10.1.0"
     kotlin("jvm") version "1.9.21"
     kotlin("plugin.spring") version "1.9.21"
     id("nu.studer.jooq") version "9.0"
@@ -27,6 +27,7 @@ java {
 buildscript {
     dependencies {
         classpath("org.postgresql:postgresql:42.5.4")
+        classpath("org.flywaydb:flyway-database-postgresql:10.1.0")
     }
 }
 
@@ -47,11 +48,10 @@ dependencies {
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.jooq:jooq:3.19.3")
+    implementation("org.flywaydb:flyway-core:10.1.0")
     jooqGenerator("org.postgresql:postgresql:42.5.4")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-    implementation("org.flywaydb:flyway-core:10.1.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.1.0")
     runtimeOnly("org.postgresql:postgresql:42.5.4")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
@@ -77,7 +77,7 @@ flyway {
     user = "myuser"
     password = "secret"
     schemas = arrayOf("public")
-    locations = arrayOf("filesystem:$project.projectDir/src/main/resources/db/migration")
+    locations = arrayOf("filesystem:${project.projectDir}/src/main/resources/db/migration")
 }
 
 jooq {
