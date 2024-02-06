@@ -23,7 +23,7 @@ make build/dev-deps
 - Go to `localhost:4001/swagger-ui.html` to see the API document in Swagger UI
 
 ## Notes
-- You must use the make command to run db migrations as flyway will not run on application startup
+- You must use the `make` command to run db migrations as flyway will not run on application startup
 
 ## License
 
