@@ -28,6 +28,7 @@ buildscript {
     dependencies {
         classpath("org.postgresql:postgresql:42.5.4")
         classpath("org.flywaydb:flyway-database-postgresql:10.1.0")
+        classpath("org.springdoc:springdoc-openapi-starter-common:2.3.0")
     }
 }
 
