@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+      "title": "API",
+      "description": "API",
+      "version": "1.0.0"
+  },
+  "externalDocs": {
+      "description": "Find out more about Swagger",
+      "url": "http://swagger.io"
+  },
+  "tags": [
+      {
+          "name": "user",
+          "description": "Everything about user"
+      }
+  ],
+  "paths": {
+    "/greeting": {
+      "get": {
+        "tags": ["greeting"],
+        "summary": "A greeting endpoint",
+        "description": "Returns a greeting",
+        "operationId": "getGreeting",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

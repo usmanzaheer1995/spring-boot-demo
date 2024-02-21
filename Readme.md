@@ -24,6 +24,7 @@ make build/dev-deps
 
 ## Notes
 - You must use the `make` command to run db migrations as flyway will not run on application startup
+- To generate the resources, pass along the `DEMO_ENV` environment variable corresponding to your environment (local or prod in this case). For example, `make generate/reources DEMO_ENV=local`
 
 ## License
 

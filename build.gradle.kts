@@ -1,8 +1,15 @@
 import nu.studer.gradle.jooq.JooqGenerate
-import org.flywaydb.gradle.task.FlywayMigrateTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.Logging
 import org.jooq.meta.jaxb.Property
+import java.util.Properties
+
+val env = System.getenv("DEMO_ENV") ?: "local" // Default to "local" if ENVIRONMENT variable is not set
+val propertiesFileName = "application-$env.properties"
+val properties = Properties()
+project.file("src/main/resources/$propertiesFileName").inputStream().use { properties.load(it) }
+
+println("Using properties file: $propertiesFileName")
 
 plugins {
     id("org.springframework.boot") version "3.2.1"
@@ -75,11 +82,15 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+val dbUrl = properties.getProperty("spring.datasource.url")
+val dbUser = properties.getProperty("spring.datasource.username")
+val dbPassword = properties.getProperty("spring.datasource.password")
+
 flyway {
-    url = "jdbc:postgresql://0.0.0.0:5431/mydatabase"
+    url = dbUrl
     driver = "org.postgresql.Driver"
-    user = "myuser"
-    password = "secret"
+    user = dbUser
+    password = dbPassword
     schemas = arrayOf("public")
     locations = arrayOf("filesystem:${project.projectDir}/src/main/resources/db/migration")
 }
@@ -91,9 +102,9 @@ jooq {
                 logging = Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://0.0.0.0:5431/mydatabase"
-                    user = "myuser"
-                    password = "secret"
+                    url = dbUrl
+                    user = dbUser
+                    password = dbPassword
                     properties.add(Property().apply {
                         key = "ssl"
                         value = "false"
@@ -129,7 +140,7 @@ tasks.named<JooqGenerate>("generateJooq") {
 }
 
 val oasPackage = "org.usmanzaheer1995.springbootdemo.openapi"
-val oasSpecLocation = "api-definition.yaml"
+val oasSpecLocation = "api-definition.json"
 val oasGenOutputDir = project.layout.buildDirectory.dir("generated-oas")
 
 openApiGenerate {
@@ -139,7 +150,7 @@ openApiGenerate {
     apiPackage = "$oasPackage.api"
     modelPackage = "$oasPackage.model"
     configOptions = mapOf(
-        "dateLibrary" to "java8",
+        "dateLibrary" to "java21",
         "interfaceOnly" to "true",
         "useTags" to "true"
     )
