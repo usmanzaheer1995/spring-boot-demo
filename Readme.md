@@ -4,18 +4,17 @@ This starter template is configured with Java 21, Gradle 8.5, and uses Kotlin.
 
 ## Installation
 
-Make sure to have the correct JDK and gradle versions, as well as docker-compose installed.
+Make sure to have the correct JDK and gradle versions, as well as postgresql instance running.
 
 ## Usage
-- To start the project, run
+- To start the project locally, run
 
 ```bash
 # this does a few things:
-# Starts the PostgreSQL db in a docker container
 # Generates the flyway database migrations (right now there is one)
 # Generates the JOOQ classes
 # Generates OpenAPI 3 docs
-make build/dev-deps
+make build/local && make run/local
 ```
 
 - Start the application in your IDE (I use IntelliJ IDEA)
@@ -24,8 +23,7 @@ make build/dev-deps
 
 ## Notes
 - You must use the `make` command to run db migrations as flyway will not run on application startup
-- To generate the resources, pass along the `DEMO_ENV` environment variable corresponding to your environment (local or prod in this case). For example, `make generate/reources DEMO_ENV=local`
-
+- There is a compose.yml to run postgresql locally, you can start it by `make start/db`
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

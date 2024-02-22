@@ -4,12 +4,10 @@ import org.jooq.meta.jaxb.Logging
 import org.jooq.meta.jaxb.Property
 import java.util.Properties
 
-val env = System.getenv("DEMO_ENV") ?: "local" // Default to "local" if ENVIRONMENT variable is not set
+val env = System.getenv("DEMO_ENV") ?: "local"
 val propertiesFileName = "application-$env.properties"
 val properties = Properties()
 project.file("src/main/resources/$propertiesFileName").inputStream().use { properties.load(it) }
-
-println("Using properties file: $propertiesFileName")
 
 plugins {
     id("org.springframework.boot") version "3.2.1"
@@ -154,6 +152,11 @@ openApiGenerate {
         "interfaceOnly" to "true",
         "useTags" to "true"
     )
+}
+
+tasks.bootJar {
+    archiveFileName.set("spring-boot-demo.jar")
+    enabled = true
 }
 
 sourceSets {
