@@ -19,7 +19,7 @@ make build/local && make run/local
 
 - Start the application in your IDE (I use IntelliJ IDEA)
 - Go to `localhost:4001/greeting` to see the response
-- Go to `localhost:4001/swagger-ui.html` to see the API document in Swagger UI
+- Go to `localhost:4001/swagger-ui-local.html` to see the API document in Swagger UI
 
 ## Build docker image
 To build the local docker image, run:
