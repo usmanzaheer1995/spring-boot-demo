@@ -21,6 +21,12 @@ make build/local && make run/local
 - Go to `localhost:4001/greeting` to see the response
 - Go to `localhost:4001/swagger-ui.html` to see the API document in Swagger UI
 
+## Build docker image
+To build the local docker image, run:
+```bash
+make build/image/local
+```
+
 ## Notes
 - You must use the `make` command to run db migrations as flyway will not run on application startup
 - There is a compose.yml to run postgresql locally, you can start it by `make start/db`
