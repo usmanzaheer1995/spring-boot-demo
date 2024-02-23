@@ -65,6 +65,16 @@ build/prod: |
 	echo "Building..." && \
 	./gradlew build --no-daemon
 
+## build/image/local: build docker image for local environment
+.PHONE: build/image/local
+build/image/local: build/image/local
+	@docker build --network host -t spring-boot-demo-local -f Dockerfile-local .
+
+## build/image/prod: build docker image for local environment
+.PHONE: build/image/prod
+build/image/prod: build/image/prod
+	@docker build --network host -t spring-boot-demo-prod -f Dockerfile-prod .
+
 ## run/local: run app for local environment
 .PHONE: run/local
 run/local:

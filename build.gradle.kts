@@ -31,7 +31,7 @@ java {
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.5.4")
+        classpath("org.postgresql:postgresql:42.5.5")
         classpath("org.flywaydb:flyway-database-postgresql:10.1.0")
         classpath("org.springdoc:springdoc-openapi-starter-common:2.3.0")
     }
@@ -55,10 +55,10 @@ dependencies {
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.jooq:jooq:3.19.3")
     implementation("org.flywaydb:flyway-core:10.1.0")
-    jooqGenerator("org.postgresql:postgresql:42.5.4")
+    jooqGenerator("org.postgresql:postgresql:42.5.5")
     developmentOnly("org.springframework.boot:spring-boot-devtools:3.2.2")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose:3.2.2")
-    runtimeOnly("org.postgresql:postgresql:42.5.4")
+    runtimeOnly("org.postgresql:postgresql:42.5.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.2") {
         exclude(group = "com.jayway.jsonpath", module = "json-path")
     }
@@ -155,7 +155,7 @@ openApiGenerate {
 }
 
 tasks.bootJar {
-    archiveFileName.set("spring-boot-demo.jar")
+    archiveFileName.set("spring-boot-demo-$env.jar")
     enabled = true
 }
 

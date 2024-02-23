@@ -1,0 +1,23 @@
+FROM amazoncorretto:21-alpine-jdk AS builder
+
+RUN apk --no-cache add make
+
+# Set working directory
+WORKDIR /app
+
+# Copy built JAR from the builder stage
+COPY . .
+
+RUN make build/local
+
+FROM amazoncorretto:21-alpine-jdk
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/spring-boot-demo-local.jar /app/spring-boot-demo-local.jar
+
+# Expose the port
+EXPOSE 4001
+
+# Run the application
+CMD ["java", "-Dspring.profiles.active=local", "-jar", "spring-boot-demo-local.jar"]
