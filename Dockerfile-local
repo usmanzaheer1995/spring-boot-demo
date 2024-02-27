@@ -8,7 +8,7 @@ WORKDIR /app
 # Copy built JAR from the builder stage
 COPY . .
 
-RUN make build/local
+RUN make generate/openapi && ./gradlew build -x test
 
 FROM amazoncorretto:21-alpine-jdk
 

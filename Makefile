@@ -68,22 +68,17 @@ build/prod: |
 ## build/image/local: build docker image for local environment
 .PHONE: build/image/local
 build/image/local: build/image/local
-	@docker build --network host -t spring-boot-demo-local -f Dockerfile-local .
+	@docker build -t spring-boot-demo-local -f Dockerfile-local .
 
 ## build/image/prod: build docker image for local environment
 .PHONE: build/image/prod
 build/image/prod: build/image/prod
-	@docker build --network host -t spring-boot-demo-prod -f Dockerfile-prod .
+	@docker build -t spring-boot-demo-prod -f Dockerfile-prod .
 
-## run/local: run app for local environment
-.PHONE: run/local
-run/local:
-	@java -Dspring.profiles.active=local -jar build/libs/spring-boot-demo.jar
-
-## run/prod: run app for prod environment
-.PHONE: run/prod
-run/prod:
-	@java -Dspring.profiles.active=prod -jar build/libs/spring-boot-demo.jar
+## run/image/prod: run docker image for prod environment
+.PHONE: run/image/prod
+run/image/prod: run/image/prod
+	@docker run --network postgres-bridge --name sp-demo-prod -p 4002:4002 spring-boot-demo-prod
 
 ifeq ($(OS),Windows_NT)
     # Commands to run on Windows

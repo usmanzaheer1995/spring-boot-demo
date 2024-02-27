@@ -4,6 +4,8 @@ import org.jooq.meta.jaxb.Logging
 import org.jooq.meta.jaxb.Property
 import java.util.Properties
 
+val packageName = "org.usmanzaheer1995.springbootdemo"
+
 val env = System.getenv("DEMO_ENV") ?: "local"
 val propertiesFileName = "application-$env.properties"
 val properties = Properties()
@@ -31,8 +33,6 @@ java {
 
 buildscript {
     dependencies {
-        classpath("org.postgresql:postgresql:42.5.5")
-        classpath("org.flywaydb:flyway-database-postgresql:10.1.0")
         classpath("org.springdoc:springdoc-openapi-starter-common:2.3.0")
     }
 }
@@ -54,19 +54,20 @@ dependencies {
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.jooq:jooq:3.19.3")
-    implementation("org.flywaydb:flyway-core:10.1.0")
+    implementation("org.flywaydb:flyway-core:10.6.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
     jooqGenerator("org.postgresql:postgresql:42.5.5")
+    runtimeOnly("org.postgresql:postgresql:42.5.5")
     developmentOnly("org.springframework.boot:spring-boot-devtools:3.2.2")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose:3.2.2")
-    runtimeOnly("org.postgresql:postgresql:42.5.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.2") {
         exclude(group = "com.jayway.jsonpath", module = "json-path")
     }
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")
     testImplementation("org.springframework.boot:spring-boot-testcontainers:3.2.2")
-    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:postgresql:1.17.6")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.4")
+    testImplementation("org.testcontainers:postgresql:1.19.3")
+    testImplementation("io.mockk:mockk:1.13.9")
 }
 
 tasks.withType<KotlinCompile> {
@@ -84,11 +85,15 @@ val dbUrl = properties.getProperty("spring.datasource.url")
 val dbUser = properties.getProperty("spring.datasource.username")
 val dbPassword = properties.getProperty("spring.datasource.password")
 
+val flywayDbUrl = properties.getProperty("spring.flyway.url")
+val flywayDbUser = properties.getProperty("spring.flyway.user")
+val flywayDbPassword = properties.getProperty("spring.flyway.password")
+
 flyway {
-    url = dbUrl
+    url = flywayDbUrl
     driver = "org.postgresql.Driver"
-    user = dbUser
-    password = dbPassword
+    user = flywayDbUser
+    password = flywayDbPassword
     schemas = arrayOf("public")
     locations = arrayOf("filesystem:${project.projectDir}/src/main/resources/db/migration")
 }
@@ -122,7 +127,7 @@ jooq {
                         isFluentSetters = true
                     }
                     target.apply {
-                        packageName = "org.usmanzaheer1995.springbootdemo.persistence.db"
+                        packageName = "$packageName.persistence.db"
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }
@@ -137,7 +142,7 @@ tasks.named<JooqGenerate>("generateJooq") {
     })
 }
 
-val oasPackage = "org.usmanzaheer1995.springbootdemo.openapi"
+val oasPackage = "$packageName.openapi"
 val oasSpecLocation = "api-definition.json"
 val oasGenOutputDir = project.layout.buildDirectory.dir("generated-oas")
 
