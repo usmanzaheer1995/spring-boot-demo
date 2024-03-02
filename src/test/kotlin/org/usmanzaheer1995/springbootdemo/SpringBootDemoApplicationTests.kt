@@ -8,7 +8,7 @@ import org.springframework.test.context.TestPropertySource
 
 @Import(TestSpringBootDemoApplication::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = ["spring.datasource.url=jdbc:tc:postgresql:16:///todos"])
+@TestPropertySource(properties = ["spring.datasource.url=jdbc:tc:postgresql:16:///mydatabase"])
 class SpringBootDemoApplicationTests {
 
 	@Test

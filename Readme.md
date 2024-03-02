@@ -38,9 +38,13 @@ with a network bridge named `postgres-bridge`.
 make build/image/prod
 ```
 
-
 ## Notes
 - There is a compose.yml to run postgresql locally, you can start it by `make start/db`
-## License
 
+# Next Steps
+- [ ] Add a CI/CD pipeline with Github Actions
+- [ ] Figure out testing, both unit and integration tests (using testcontainers)
+- [ ] Figure out how to test on the CI
+
+## License
 [MIT](https://choosealicense.com/licenses/mit/)
