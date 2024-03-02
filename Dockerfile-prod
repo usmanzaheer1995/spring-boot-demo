@@ -10,7 +10,7 @@ COPY . .
 
 ENV DEMO_ENV=prod
 
-RUN make generate/openapi && ./gradlew build -x test --no-daemon
+RUN ./gradlew build -x test --no-daemon
 
 FROM amazoncorretto:21-alpine-jdk
 

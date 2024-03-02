@@ -7,17 +7,16 @@ This starter template is configured with Java 21, Gradle 8.5, and uses Kotlin.
 Make sure to have the correct JDK and gradle versions, as well as postgresql instance running.
 
 ## Usage
-- To start the project locally, run
+- To start the project locally, first run this:
 
 ```bash
 # this does a few things:
-# Generates the flyway database migrations (right now there is one)
 # Generates the JOOQ classes
 # Generates OpenAPI 3 docs
-make build/local && make run/local
+make build/local
 ```
 
-- Start the application in your IDE (I use IntelliJ IDEA)
+- Start the application in your IDE with local profile (I use IntelliJ IDEA, and set the `Active Profile` to `local` in the run configuration)
 - Go to `localhost:4001/greeting` to see the response
 - Go to `localhost:4001/swagger-ui-local.html` to see the API document in Swagger UI
 
@@ -27,8 +26,20 @@ To build the local docker image, run:
 make build/image/local
 ```
 
+To build the production docker image, run:
+```bash
+make build/image/prod
+```
+
+To run the production docker image,
+you need a postgresql instance running in a docker container
+with a network bridge named `postgres-bridge`.
+```bash
+make build/image/prod
+```
+
+
 ## Notes
-- You must use the `make` command to run db migrations as flyway will not run on application startup
 - There is a compose.yml to run postgresql locally, you can start it by `make start/db`
 ## License
 

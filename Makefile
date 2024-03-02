@@ -33,13 +33,9 @@ generate/openapi:
 generate/flywayMigrations:
 	@./gradlew flywayMigrate
 
-## generate/resources: generate all resources i.e. flyway, jooq, openapi
-.PHONE: generate/resources
-generate/resources: generate/flywayMigrations generate/jooq generate/openapi
-
-## build/dev-deps: build development dependencies i.e. flyway, jooq, openapi
-.PHONY: build/dev-deps
-build/dev-deps: start/db delay generate/flywayMigrations generate/jooq generate/openapi
+## build/deps: build development dependencies i.e. jooq, openapi
+.PHONY: build/deps
+build/deps: generate/jooq generate/openapi
 
 ## build/local: build for local environment
 .PHONE: build/local
@@ -49,9 +45,8 @@ build/local: |
 	echo "Setting environment variable to local..." && \
 	export DEMO_ENV=local && \
 	echo "Generating resources..." && \
-	make generate/resources && \
-	echo "Building..." && \
-	./gradlew build
+	make generate/jooq && \
+	make generate/openapi
 
 ## build/prod: build for prod environment
 .PHONE: build/prod
@@ -61,24 +56,32 @@ build/prod: |
 	echo "Setting environment variable to prod..." && \
 	export DEMO_ENV=prod && \
 	echo "Generating resources..." && \
-	make generate/resources && \
-	echo "Building..." && \
-	./gradlew build --no-daemon
+	make generate/jooq && \
+	make generate/openapi
 
 ## build/image/local: build docker image for local environment
 .PHONE: build/image/local
-build/image/local: build/image/local
+build/image/local: build/local
 	@docker build -t spring-boot-demo-local -f Dockerfile-local .
 
 ## build/image/prod: build docker image for local environment
 .PHONE: build/image/prod
-build/image/prod: build/image/prod
+build/image/prod: build/prod
 	@docker build -t spring-boot-demo-prod -f Dockerfile-prod .
 
+
+CONTAINER_NAME = sp-demo-prod
 ## run/image/prod: run docker image for prod environment
 .PHONE: run/image/prod
-run/image/prod: run/image/prod
-	@docker run --network postgres-bridge --name sp-demo-prod -p 4002:4002 spring-boot-demo-prod
+run/image/prod:
+	@if [ ! "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then \
+		echo "Stopping and removing existing container: $(CONTAINER_NAME)"; \
+		docker stop $(CONTAINER_NAME); \
+		docker rm $(CONTAINER_NAME); \
+	fi
+	docker run --network=postgres-bridge --restart=unless-stopped --name=$(CONTAINER_NAME) -p 4002:4002 spring-boot-demo-prod
+
+
 
 ifeq ($(OS),Windows_NT)
     # Commands to run on Windows

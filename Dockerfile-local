@@ -8,7 +8,9 @@ WORKDIR /app
 # Copy built JAR from the builder stage
 COPY . .
 
-RUN make generate/openapi && ./gradlew build -x test
+ENV DEMO_ENV=prod
+
+RUN ./gradlew build -x test --no-daemon
 
 FROM amazoncorretto:21-alpine-jdk
 

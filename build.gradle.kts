@@ -2,6 +2,8 @@ import nu.studer.gradle.jooq.JooqGenerate
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.Logging
 import org.jooq.meta.jaxb.Property
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 import java.util.Properties
 
 val packageName = "org.usmanzaheer1995.springbootdemo"
@@ -34,6 +36,9 @@ java {
 buildscript {
     dependencies {
         classpath("org.springdoc:springdoc-openapi-starter-common:2.3.0")
+        classpath("org.flywaydb:flyway-core:10.6.0")
+        classpath("org.flywaydb:flyway-database-postgresql:10.6.0")
+        classpath("org.testcontainers:postgresql:1.19.3")
     }
 }
 
@@ -89,11 +94,24 @@ val flywayDbUrl = properties.getProperty("spring.flyway.url")
 val flywayDbUser = properties.getProperty("spring.flyway.user")
 val flywayDbPassword = properties.getProperty("spring.flyway.password")
 
+val containerInstance: PostgreSQLContainer<Nothing>? = if ("generateJooq" in project.gradle.startParameter.taskNames) {
+    PostgreSQLContainer<Nothing>(
+        DockerImageName.parse(
+            "postgres:16-alpine",
+        ),
+    ).apply {
+        withDatabaseName("mydatabase")
+        start()
+    }
+} else {
+    null
+}
+
 flyway {
-    url = flywayDbUrl
+    url = containerInstance?.jdbcUrl ?: flywayDbUrl
+    user = containerInstance?.username ?: flywayDbUser
+    password = containerInstance?.password ?: flywayDbPassword
     driver = "org.postgresql.Driver"
-    user = flywayDbUser
-    password = flywayDbPassword
     schemas = arrayOf("public")
     locations = arrayOf("filesystem:${project.projectDir}/src/main/resources/db/migration")
 }
@@ -105,9 +123,9 @@ jooq {
                 logging = Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = dbUrl
-                    user = dbUser
-                    password = dbPassword
+                    url = containerInstance?.jdbcUrl
+                    user = containerInstance?.username
+                    password = containerInstance?.password
                     properties.add(Property().apply {
                         key = "ssl"
                         value = "false"
@@ -118,6 +136,8 @@ jooq {
                     database.apply {
                         name = "org.jooq.meta.postgres.PostgresDatabase"
                         inputSchema = "public"
+                        isIncludeIndexes = false
+                        excludes = "flyway.*"
                     }
                     generate.apply {
                         isRelations = true
@@ -138,7 +158,11 @@ jooq {
 
 tasks.named<JooqGenerate>("generateJooq") {
     (launcher::set)(javaToolchains.launcherFor {
+        dependsOn(tasks.named("flywayMigrate"))
         languageVersion.set(JavaLanguageVersion.of(21))
+        doLast {
+            containerInstance?.stop()
+        }
     })
 }
 
