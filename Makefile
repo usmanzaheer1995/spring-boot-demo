@@ -62,12 +62,12 @@ build/prod: |
 ## build/image/local: build docker image for local environment
 .PHONE: build/image/local
 build/image/local: build/local
-	@docker build -t spring-boot-demo-local -f Dockerfile-local .
+	@docker build --no-cache -t spring-boot-demo-local -f Dockerfile-local .
 
 ## build/image/prod: build docker image for local environment
 .PHONE: build/image/prod
 build/image/prod: build/prod
-	@docker build -t spring-boot-demo-prod -f Dockerfile-prod .
+	@docker build --no-cache -t spring-boot-demo-prod -f Dockerfile-prod .
 
 
 CONTAINER_NAME = sp-demo-prod
