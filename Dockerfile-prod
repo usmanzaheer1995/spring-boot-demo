@@ -1,6 +1,7 @@
 FROM amazoncorretto:21-alpine-jdk AS builder
 
 RUN apk --no-cache add make
+RUN apk --no-cache add binutils
 
 # Set working directory
 WORKDIR /app
@@ -12,7 +13,20 @@ ENV DEMO_ENV=prod
 
 RUN ./gradlew build -x test --no-daemon
 
-FROM amazoncorretto:21-alpine-jdk
+RUN $JAVA_HOME/bin/jlink \
+    --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
+    --strip-debug \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /javaruntime
+
+FROM alpine:latest
+
+ENV JAVA_HOME=/jre
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+COPY --from=builder /javaruntime $JAVA_HOME
 
 WORKDIR /app
 

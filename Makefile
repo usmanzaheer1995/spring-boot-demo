@@ -74,7 +74,7 @@ CONTAINER_NAME = sp-demo-prod
 ## run/image/prod: run docker image for prod environment
 .PHONE: run/image/prod
 run/image/prod:
-	@if [ ! "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then \
+	@if docker ps -a --format '{{.Names}}' | grep -q "^$(CONTAINER_NAME)$$"; then \
 		echo "Stopping and removing existing container: $(CONTAINER_NAME)"; \
 		docker stop $(CONTAINER_NAME); \
 		docker rm $(CONTAINER_NAME); \
