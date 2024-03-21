@@ -35,7 +35,7 @@ To run the production docker image,
 you need a postgresql instance running in a docker container
 with a network bridge named `postgres-bridge`.
 ```bash
-make build/image/prod
+make run/image/prod
 ```
 
 ## Notes
