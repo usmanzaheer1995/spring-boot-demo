@@ -8,7 +8,7 @@ WORKDIR /app
 # Copy built JAR from the builder stage
 COPY . .
 
-ENV DEMO_ENV=prod
+ENV DEMO_ENV=local
 
 RUN ./gradlew build -x test --no-daemon
 

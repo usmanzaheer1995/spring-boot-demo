@@ -1,30 +1,6 @@
-FROM amazoncorretto:21-alpine as deps
+FROM eclipse-temurin:21-jdk AS builder
 
-COPY . .
-
-ENV DEMO_ENV=prod
-
-RUN ./gradlew build -x test --no-daemon
-
-COPY ./app.jar /app/app.jar
-RUN mkdir /app/unpacked && \
-    cd /app/unpacked && \
-    unzip ../app.jar && \
-    cd .. && \
-    $JAVA_HOME/bin/jdeps \
-    --ignore-missing-deps \
-    --print-module-deps \
-    -q \
-    --recursive \
-    --multi-release 17 \
-    --class-path="./unpacked/BOOT-INF/lib/*" \
-    --module-path="./unpacked/BOOT-INF/lib/*" \
-    ./app.jar > /deps.info
-
-FROM amazoncorretto:21-alpine-jdk AS builder
-
-RUN apk --no-cache add make
-RUN apk --no-cache add binutils
+RUN apt-get update && apt-get install -y make binutils unzip
 
 # Set working directory
 WORKDIR /app
@@ -36,15 +12,34 @@ ENV DEMO_ENV=prod
 
 RUN ./gradlew build -x test --no-daemon
 
-RUN $JAVA_HOME/bin/jlink \
-    --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
-    --strip-debug \
-    --no-man-pages \
-    --no-header-files \
-    --compress=2 \
-    --output /javaruntime
+# Create a directory for unpacking the JAR
+RUN mkdir -p /app/unpacked
 
-FROM alpine:latest
+# Unpack the JAR file
+RUN cd /app/unpacked && unzip ../build/libs/spring-boot-demo-prod.jar
+
+# Run jdeps to analyze dependencies and save the results
+RUN jdeps \
+    --ignore-missing-deps \
+    --print-module-deps \
+    -q \
+    --recursive \
+    --multi-release 21 \
+    --class-path="/app/unpacked/BOOT-INF/lib/*" \
+    --module-path="/app/unpacked/BOOT-INF/lib/*" \
+    /app/build/libs/spring-boot-demo-prod.jar > /app/deps.info
+
+# Run jlink to create a custom runtime image
+RUN jlink \
+    --verbose \
+    --compress 2 \
+    --strip-java-debug-attributes \
+    --no-header-files \
+    --no-man-pages \
+    --output /javaruntime \
+    --add-modules $(cat /app/deps.info)
+
+FROM debian:buster-slim
 
 ENV JAVA_HOME=/jre
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
