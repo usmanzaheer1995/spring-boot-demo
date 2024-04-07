@@ -21,11 +21,6 @@ make build/local
 - Go to `localhost:4001/swagger-ui-local.html` to see the API document in Swagger UI
 
 ## Build docker image
-To build the local docker image, run:
-```bash
-make build/image/local
-```
-
 To build the production docker image, run:
 ```bash
 make build/image/prod
